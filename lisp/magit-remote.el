@@ -179,6 +179,9 @@ then read the remote."
               (?p "Set publish"   "++set-publish"))
   :actions  '(
               (?e "Explicit..."   magit-push-explicit)
+              (?p "Publish"       magit-push-publish)
+              (?r "Publish..."    magit-push-publish-another)
+              nil
               (?t "Tip"           magit-push-tip)
               (?T "Tip..."        magit-push-tip-to)
               nil nil nil
@@ -202,6 +205,19 @@ then read the remote."
   (magit-run-git-async-no-revert
    (and mode (list "-c" (format "push.default=%s" mode)))
    "push" "-v" args refspec*))
+
+;;;; Publish
+
+;;;###autoload
+(defun magit-push-publish (args)
+  (interactive (list (magit-push-arguments)))
+  )
+
+;;;###autoload
+(defun magit-push-publish-another (branch args)
+  (interactive (list (magit-read-another-local-branch "Publish")
+                     (magit-push-arguments)))
+  )
 
 ;;;; Explicit
 
