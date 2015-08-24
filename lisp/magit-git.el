@@ -361,6 +361,11 @@ a bare repositories."
 (put 'magit-buffer-refname   'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 
+(defun magit-buffer-file-name (&optional buffer)
+  (with-current-buffer (or buffer (current-buffer))
+    (or (buffer-file-name (buffer-base-buffer))
+        magit-buffer-file-name)))
+
 (defun magit-file-relative-name (&optional file tracked)
   "Return the path of FILE relative to the repository root.
 
@@ -786,6 +791,15 @@ Return a list of two integers: (A>B B>A)."
 
 (defun magit-abbrev-arg ()
   (format "--abbrev=%d" (magit-abbrev-length)))
+
+(defun magit-commit-children (commit &optional args)
+  (-map #'car
+        (--filter (member commit (cdr it))
+                  (--map (split-string it " ")
+                         (magit-git-lines
+                          "log" "--format=%H %P"
+                          (or args (list "--branches" "--tags" "--remotes"))
+                          "--not" commit)))))
 
 (defun magit-commit-parents (commit)
   (--when-let (magit-git-string "rev-list" "-1" "--parents" commit)
